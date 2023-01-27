@@ -220,32 +220,42 @@ Use AI to prompt user for image to put on t shirt
 <!--- Make middle screen input to give prompt from user to AI to generate image --->
 <div class="container">
 
-    <form name="submit" method="POST" action="index.php">
-        <div class="form-group row">
-            <div class="col-sm-10">
-                <input type="text" class="form-control" id="prompt" name="prompt" placeholder="prompt">
-            </div>
+<!-- jumbotron with lazy loading image from unsplash -->
+    <div class="jumbotron">
+        <div class="container text-center">
+            <form name="submit" method="POST" action="index.php">
+                <div class="form-group row">
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="prompt" name="prompt" placeholder="prompt">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-10">
+                        <!-- 500px width and 500px height -->
+                        <button style="width: 100%" type="submit"  name="submit" class="btn btn-primary">Generate T-Shirt</button>
+                    </div>
+                </div>
+            </form>
         </div>
-        <div class="form-group row">
-            <div class="col-sm-10">
-                <!-- 500px width and 500px height -->
-                <button style="width: 100%" type="submit"  name="submit" class="btn btn-primary">Generate T-Shirt</button>
-            </div>
-        </div>
-    </form>
-<!--- handle form submission --->
-    <?php
-
-    //chck if photo is not empty and if it is not empty then display the image in the div card below
-    if(!empty( $image['data'][0]['url'])){
-        $photo =  $image['data'][0]['url'];
-        echo "<div class='card'>
+        <?php
+        //chck if photo is not empty and if it is not empty then display the image in the div card below
+        if(!empty( $image['data'][0]['url'])){
+            $photo =  $image['data'][0]['url'];
+            echo "<div class='card'>
         <div class='card-body'>
-            <img src='$photo' alt='image' style='width:50% ; height:50%'>
+            <h5 class='card-title'>Generated T-Shirt</h5>
+            <img class='img-fluid' src='$photo' alt='image' style='width: 75%; height: 75%;'>
         </div>
-</div>";
-    }
-    ?>
+        </div>";
+        }
+        ?>
+    </div>
+
+</div>
+
+
+<!--- handle form submission --->
+
 </div>
 <?php
 
@@ -334,5 +344,22 @@ if (isset($photo)){
 
 }
 ?>
+<div class="row">
+    <div class="col-sm-4">
+        <h3>Design</h3>
+        <p>Design your own T-shirt with our AI powered T-shirt design tool.</p>
+        <p>Choose from a variety of designs and colors to create your own unique T-shirt.</p>
+    </div>
+    <div class="col-sm-4">
+        <h3>Print</h3>
+        <p>Print your T-shirt with our AI powered T-shirt printing tool.</p>
+        <p>Choose from a variety of designs and colors to create your own unique T-shirt.</p>
+    </div>
+    <div class="col-sm-4">
+        <h3>Wear</h3>
+        <p>Wear your T-shirt with our AI powered T-shirt printing tool.</p>
+        <p>Choose from a variety of designs and colors to create your own unique T-shirt.</p>
+    </div>
+</div>
 </body>
 </HTML>
