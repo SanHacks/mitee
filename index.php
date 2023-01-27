@@ -1,48 +1,50 @@
 <?php
-if(isset($_POST['submit'])){
-$client = new Client();
-$headers = [
-    'Content-Type' => 'application/json',
-    'Authorization' => 'Bearer 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'
-];
+include_once 'vendor/autoload.php';
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
 
-//Get prompt from post request and filter all unwanted characters and limit to 100 characters and always append a space at the end and T-Shirt if words shirt is not post request
-if(isset($_POST['prompt'])){
+if (isset($_POST['prompt'])) {
     $prompt = $_POST['prompt'];
-    $prompt = preg_replace('/[^A-Za-z0-9\-]/', ' ', $prompt);
-    $prompt = substr($prompt, 0, 100);
-    if(!preg_match('/shirt/', $prompt)){
-        $prompt = $prompt . ' T-Shirt';
-    }
-    $prompt = $prompt . ' ';
+} else {
+    $prompt = 'A Cyberpunk T-Shirt';
 }
-else{
-    $prompt = 'T-Shirt ';
-}
-
-//Get n from post request and filter all unwanted characters and limit to 100 characters
-if(isset($_POST['n'])){
+if (isset($_POST['n'])) {
     $n = $_POST['n'];
-    $n = preg_replace('/[^0-9]/', '', $n);
-    $n = substr($n, 0, 100);
-}
-else{
+} else {
     $n = 1;
 }
 
-///Build body of request
-$body = '{
-    "prompt": "' . $prompt . '",
-    "n": ' . $n . ',
-    "size": "1024x1024"
-}';
-$request = new Request('POST', 'https://api.openai.com/v1/images/generations', $headers, $body);
-$res = $client->sendAsync($request)->wait();
-echo $res->getBody();
+if (isset($_POST['size'])) {
+    $size = $_POST['size'];
+} else {
+    $size = '1024x1024';
 }
 
-?>
+if(isset($_POST['submit'])) {
+    $client = new Client();
+    $headers = [
+        'Content-Type' => 'application/json',
+        'Authorization' => 'Bearer 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'
+    ];
 
+//fill dynamic prompt with user input
+    $prompt = $_POST['prompt'];
+    $body = '{
+  "prompt": "'.$prompt.'",
+  "n": 1,
+  "size": "1024x1024"
+}';
+    $request = new Request('POST', 'https://api.openai.com/v1/images/generations', $headers, $body);
+    $res = $client->sendAsync($request)->wait();
+
+    $image = $res->getBody();
+//decode the json response
+    $image = json_decode($image, true);
+
+}
+
+
+?>
 <HTML>
 <HEAD>
     <title>AI TEES</title>
@@ -221,17 +223,116 @@ Use AI to prompt user for image to put on t shirt
     <form name="submit" method="POST" action="index.php">
         <div class="form-group row">
             <div class="col-sm-10">
-                <input type="text" class="form-control" id="name" name="name" placeholder="Name">
+                <input type="text" class="form-control" id="prompt" name="prompt" placeholder="prompt">
             </div>
         </div>
         <div class="form-group row">
             <div class="col-sm-10">
                 <!-- 500px width and 500px height -->
-                <button style="width: 100%" type="submit"  name="submit" class="btn btn-primary">Generate Image</button>
+                <button style="width: 100%" type="submit"  name="submit" class="btn btn-primary">Generate T-Shirt</button>
             </div>
         </div>
-    </form>    <!--- Make middle screen input to give prompt from user to AI to generate image --->
+    </form>
+<!--- handle form submission --->
+    <?php
+    $photo = $image['data'][0]['url'];
+    //chck if photo is not empty and if it is not empty then display the image in the div card below
+    if(!empty($photo)){
+        echo "<div class='card'>
+        <div class='card-body'>
+            <img src='$photo' alt='image' style='width:50%'>
+        </div>
+</div>";
+    }
+    ?>
 </div>
+<?php
 
+//save image to local storage and database and
+//display image in the div card above
+if (isset($photo)){
+    $image = file_get_contents($photo);
+    $image = base64_encode($image);
+    $image = 'data:image/jpeg;base64,'.$image;
+    $image = str_replace('data:image/jpeg;base64,','',$image);
+    $image = str_replace(' ','+',$image);
+    $imageData = base64_decode($image);
+    $source = imagecreatefromstring($imageData);
+    $rotate = imagerotate($source, 90, 0); // if want to rotate the image
+    $image_name = time().'.jpg';
+    $imageSave = imagejpeg($rotate,'images/'.$image_name,100);
+    imagedestroy($source);
+/*    $sql = "INSERT INTO images (image_name, image) VALUES ('$image_name', '$image')";
+    mysqli_query($conn, $sql);
+
+    //display image in the div card above
+    //Get other images from database and display in slider below
+    $sql = "SELECT * FROM images";
+    $result = mysqli_query($conn, $sql);
+    $images = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    //Free result from memory
+    mysqli_free_result($result);
+
+    //Close connection
+    mysqli_close($conn);*/
+
+    //print_r($images);
+    //print_r($images[0]['image_name']);
+    //print_r($images[0]['image']);
+
+    //display images in slider below
+//    echo "<div class='container'>
+//    <div class='row'>
+//        <div class='col-md-12'>
+//            <div id='myCarousel' class='carousel slide' data-ride='carousel'>
+//                <!-- Indicators -->
+//                <ol class='carousel-indicators'>
+//                    <li data-target='#myCarousel' data-slide-to='0' class='active'></li>
+//                    <li data-target='#myCarousel' data-slide-to='1'></li>
+//                    <li data-target='#myCarousel' data-slide-to='2'></li>
+//                    <li data-target='#myCarousel' data-slide-to='3'></li>
+//                    <li data-target='#myCarousel' data-slide-to='4'></li>
+//                </ol>
+//
+//                <!-- Wrapper for slides -->
+//                <div class='carousel-inner'>
+//                    <div class='item active'>
+//                        <img src='images/".$images[0]['image_name']."' alt='Los Angeles' style='width:100%;'>
+//                    </div>
+//
+//                    <div class='item'>
+//                        <img src='images/".$images[1]['image_name']."' alt='Chicago' style='width:100%;'>
+//                    </div>
+//
+//                    <div class='item'>
+//                        <img src='images/".$images[2]['image_name']."' alt='New york' style='width:100%;'>
+//                    </div>
+//
+//                    <div class='item'>
+//                        <img src='images/".$images[3]['image_name']."' alt='New york' style='width:100%;'>
+//                    </div>
+//
+//                    <div class='item'>
+//                        <img src='images/".$images[4]['image_name']."' alt='New york' style='width:100%;'>
+//                    </div>
+//                </div>
+//
+//                <!-- Left and right controls -->
+//                <a class='left carousel-control' href='#myCarousel' data-slide='prev'>
+//                    <span class='glyphicon glyphicon-chevron-left'></span>
+//                    <span class='sr-only'>Previous</span>
+//                </a>
+//                <a class='right carousel-control' href='#myCarousel' data-slide='next'>
+//                    <span class='glyphicon glyphicon-chevron-right'></span>
+//                    <span class='sr-only'>Next</span>
+//                </a>
+//            </div>
+//        </div>
+//    </div>
+//</div>";
+
+}
+?>
 </body>
 </HTML>
