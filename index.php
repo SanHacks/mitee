@@ -235,12 +235,13 @@ Use AI to prompt user for image to put on t shirt
     </form>
 <!--- handle form submission --->
     <?php
-    $photo = $image['data'][0]['url'];
+
     //chck if photo is not empty and if it is not empty then display the image in the div card below
-    if(!empty($photo)){
+    if(!empty( $image['data'][0]['url'])){
+        $photo =  $image['data'][0]['url'];
         echo "<div class='card'>
         <div class='card-body'>
-            <img src='$photo' alt='image' style='width:50%'>
+            <img src='$photo' alt='image' style='width:50% ; height:50%'>
         </div>
 </div>";
     }
@@ -248,8 +249,7 @@ Use AI to prompt user for image to put on t shirt
 </div>
 <?php
 
-//save image to local storage and database and
-//display image in the div card above
+//save image to local storage
 if (isset($photo)){
     $image = file_get_contents($photo);
     $image = base64_encode($image);
@@ -260,7 +260,7 @@ if (isset($photo)){
     $source = imagecreatefromstring($imageData);
     $rotate = imagerotate($source, 90, 0); // if want to rotate the image
     $image_name = time().'.jpg';
-    $imageSave = imagejpeg($rotate,'images/'.$image_name,100);
+    $imageSave = imagejpeg($rotate,'generatedImages/'.$image_name,100);
     imagedestroy($source);
 /*    $sql = "INSERT INTO images (image_name, image) VALUES ('$image_name', '$image')";
     mysqli_query($conn, $sql);
