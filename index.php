@@ -17,7 +17,8 @@ if (isset($_POST['n'])) {
 if (isset($_POST['size'])) {
     $size = $_POST['size'];
 } else {
-    $size = '1024x1024';
+   // $size = '1024x1024';
+    $size = '512x512';
 }
 
 if(isset($_POST['submit'])) {
@@ -29,10 +30,21 @@ if(isset($_POST['submit'])) {
 
 //fill dynamic prompt with user input
     $prompt = $_POST['prompt'];
+    //strip html tags
+    $prompt = strip_tags($prompt);
+    //strip slashes
+    $prompt = stripslashes($prompt);
+    //Check if prompt is contains word T-Shirt or Shirt if not add word T-Shirt   //"size": "1024x1024"
+    if (str_contains($prompt, 'T-Shirt')) {
+    } elseif (str_contains($prompt, 'Shirt')) {
+    } else {
+        $prompt = $prompt . ' T-Shirt';
+    }
     $body = '{
   "prompt": "'.$prompt.'",
   "n": 1,
-  "size": "1024x1024"
+  "size": "512x512"
+
 }';
     $request = new Request('POST', 'https://api.openai.com/v1/images/generations', $headers, $body);
     $res = $client->sendAsync($request)->wait();
@@ -219,44 +231,39 @@ Use AI to prompt user for image to put on t shirt
 -->
 <!--- Make middle screen input to give prompt from user to AI to generate image --->
 <div class="container">
+</div>
 
-<!-- jumbotron with lazy loading image from unsplash -->
-    <div class="jumbotron">
-        <div class="container text-center">
+<div class="container my-5">
+    <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg">
+        <div class="col-lg-7 p-3 p-lg-5 pt-lg-3">
+            <h1 class="display-4 fw-bold lh-1">Get You AI Made T-Shirt Now</h1>
             <form name="submit" method="POST" action="index.php">
-                <div class="form-group row">
-                    <div class="col-sm-10">
                         <input type="text" class="form-control" id="prompt" name="prompt" placeholder="prompt">
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-10">
-                        <!-- 500px width and 500px height -->
                         <button style="width: 100%" type="submit"  name="submit" class="btn btn-primary">Generate T-Shirt</button>
-                    </div>
-                </div>
             </form>
-        </div>
+        <!-- Build Checkout Section only show if image is generated -->
         <?php
-        //chck if photo is not empty and if it is not empty then display the image in the div card below
-        if(!empty( $image['data'][0]['url'])){
-            $photo =  $image['data'][0]['url'];
-            echo "<div class='card'>
-        <div class='card-body'>
-            <h5 class='card-title'>Generated T-Shirt</h5>
-            <img class='img-fluid' src='$photo' alt='image' style='width: 75%; height: 75%;'>
-        </div>
-        </div>";
+        //show Purchase button only if image is generated
+        if (isset($photo)){
+            echo "<a href='checkout.php' class='btn btn-primary'>Purchase</a>";
         }
         ?>
+
+        </div>
+        <div class="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg">
+            <?php
+              if(!empty( $image['data'][0]['url'])){
+                $photo =  $image['data'][0]['url'];
+                echo "<img class='rounded-lg-3' src='$photo' alt='' width='720'> ";
+            }
+            ?>
+        </div>
     </div>
+</div>
 
 </div>
 
 
-<!--- handle form submission --->
-
-</div>
 <?php
 
 //save image to local storage
@@ -272,20 +279,20 @@ if (isset($photo)){
     $image_name = time().'.jpg';
     $imageSave = imagejpeg($rotate,'generatedImages/'.$image_name,100);
     imagedestroy($source);
-/*    $sql = "INSERT INTO images (image_name, image) VALUES ('$image_name', '$image')";
-    mysqli_query($conn, $sql);
+    /*    $sql = "INSERT INTO images (image_name, image) VALUES ('$image_name', '$image')";
+        mysqli_query($conn, $sql);
 
-    //display image in the div card above
-    //Get other images from database and display in slider below
-    $sql = "SELECT * FROM images";
-    $result = mysqli_query($conn, $sql);
-    $images = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        //display image in the div card above
+        //Get other images from database and display in slider below
+        $sql = "SELECT * FROM images";
+        $result = mysqli_query($conn, $sql);
+        $images = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-    //Free result from memory
-    mysqli_free_result($result);
+        //Free result from memory
+        mysqli_free_result($result);
 
-    //Close connection
-    mysqli_close($conn);*/
+        //Close connection
+        mysqli_close($conn);*/
 
     //print_r($images);
     //print_r($images[0]['image_name']);
@@ -344,7 +351,7 @@ if (isset($photo)){
 
 }
 ?>
-<div class="row">
+<!--<div class="row">
     <div class="col-sm-4">
         <h3>Design</h3>
         <p>Design your own T-shirt with our AI powered T-shirt design tool.</p>
@@ -360,6 +367,6 @@ if (isset($photo)){
         <p>Wear your T-shirt with our AI powered T-shirt printing tool.</p>
         <p>Choose from a variety of designs and colors to create your own unique T-shirt.</p>
     </div>
-</div>
+</div>-->
 </body>
 </HTML>
