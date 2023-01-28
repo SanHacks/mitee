@@ -3,6 +3,16 @@ include_once 'vendor/autoload.php';
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 
+
+include_once 'connect.php';
+
+$sql = "SELECT * FROM generatedPhotos ORDER BY id DESC";
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+
+$photos = $stmt->fetchAll();
+
+
 if (isset($_POST['prompt'])) {
     $prompt = $_POST['prompt'];
 } else {
@@ -34,12 +44,27 @@ if(isset($_POST['submit'])) {
     $prompt = strip_tags($prompt);
     //strip slashes
     $prompt = stripslashes($prompt);
-    //Check if prompt is contains word T-Shirt or Shirt if not add word T-Shirt   //"size": "1024x1024"
-    if (str_contains($prompt, 'T-Shirt')) {
-    } elseif (str_contains($prompt, 'Shirt')) {
-    } else {
-        $prompt = $prompt . ' T-Shirt';
+    //Find "shirt" and replace with "t-shirt" if it exists in the prompt, if no shirt is found, add "t-shirt" to the end of the prompt, if shirt is found, replace with t-shirt use this style /shirt/i
+    $prompt = preg_replace('/shirt/i', 't-shirt', $prompt);
+    //Find "shirts" and replace with "t-shirts" if it exists in the prompt, if no shirts is found, add "t-shirts" to the end of the prompt, if shirts is found, replace with t-shirts use this style /shirts/i
+    $prompt = preg_replace('/shirts/i', 't-shirts', $prompt);
+    //Find "tee" and replace with "t-shirt" if it exists in the prompt, if no tee is found, add "t-shirt" to the end of the prompt, if tee is found, replace with t-shirt use this style /tee/i
+    $prompt = preg_replace('/tee/i', 't-shirt', $prompt);
+    //Find "tees" and replace with "t-shirts" if it exists in the prompt, if no tees is found, add "t-shirts" to the end of the prompt, if tees is found, replace with t-shirts use this style /tees/i
+    $prompt = preg_replace('/tees/i', 't-shirts', $prompt);
+    //Find "tshirt" and replace with "t-shirt" if it exists in the prompt, if no tshirt is found, add "t-shirt" to the end of the prompt, if tshirt is found, replace with t-shirt use this style /tshirt/i
+    $prompt = preg_replace('/tshirt/i', 't-shirt', $prompt);
+    //Find "tshirts" and replace with "t-shirts" if it exists in the prompt, if no tshirts is found, add "t-shirts" to the end of the prompt, if tshirts is found, replace with t-shirts use this style /tshirts/i
+    $prompt = preg_replace('/tshirts/i', 't-shirts', $prompt);
+    //Find "t shirt" and replace with "t-shirt" if it exists in the prompt, if no t shirt is found, add "t-shirt" to the end of the prompt, if t shirt is found, replace with t-shirt use this style /t shirt/i
+    $prompt = preg_replace('/t shirt/i', 't-shirt', $prompt);
+    //Find "t shirts" and replace with "t-shirts" if it exists in the prompt, if no t shirts is found, add "t-shirts" to the end of the prompt, if t shirts is found, replace with t-shirts use this style /t shirts/i
+    $prompt = preg_replace('/t shirts/i', 't-shirts', $prompt);
+    //if there is no t-shirt in the prompt, add it to the end of the prompt
+    if (strpos($prompt, 't-shirt') === false) {
+        $prompt = $prompt . ' t-shirt';
     }
+
     $body = '{
   "prompt": "'.$prompt.'",
   "n": 1,
@@ -279,75 +304,15 @@ if (isset($photo)){
     $image_name = time().'.jpg';
     $imageSave = imagejpeg($rotate,'generatedImages/'.$image_name,100);
     imagedestroy($source);
-    /*    $sql = "INSERT INTO images (image_name, image) VALUES ('$image_name', '$image')";
-        mysqli_query($conn, $sql);
-
-        //display image in the div card above
-        //Get other images from database and display in slider below
-        $sql = "SELECT * FROM images";
-        $result = mysqli_query($conn, $sql);
-        $images = mysqli_fetch_all($result, MYSQLI_ASSOC);
-
-        //Free result from memory
-        mysqli_free_result($result);
-
-        //Close connection
-        mysqli_close($conn);*/
-
-    //print_r($images);
-    //print_r($images[0]['image_name']);
-    //print_r($images[0]['image']);
-
-    //display images in slider below
-//    echo "<div class='container'>
-//    <div class='row'>
-//        <div class='col-md-12'>
-//            <div id='myCarousel' class='carousel slide' data-ride='carousel'>
-//                <!-- Indicators -->
-//                <ol class='carousel-indicators'>
-//                    <li data-target='#myCarousel' data-slide-to='0' class='active'></li>
-//                    <li data-target='#myCarousel' data-slide-to='1'></li>
-//                    <li data-target='#myCarousel' data-slide-to='2'></li>
-//                    <li data-target='#myCarousel' data-slide-to='3'></li>
-//                    <li data-target='#myCarousel' data-slide-to='4'></li>
-//                </ol>
-//
-//                <!-- Wrapper for slides -->
-//                <div class='carousel-inner'>
-//                    <div class='item active'>
-//                        <img src='images/".$images[0]['image_name']."' alt='Los Angeles' style='width:100%;'>
-//                    </div>
-//
-//                    <div class='item'>
-//                        <img src='images/".$images[1]['image_name']."' alt='Chicago' style='width:100%;'>
-//                    </div>
-//
-//                    <div class='item'>
-//                        <img src='images/".$images[2]['image_name']."' alt='New york' style='width:100%;'>
-//                    </div>
-//
-//                    <div class='item'>
-//                        <img src='images/".$images[3]['image_name']."' alt='New york' style='width:100%;'>
-//                    </div>
-//
-//                    <div class='item'>
-//                        <img src='images/".$images[4]['image_name']."' alt='New york' style='width:100%;'>
-//                    </div>
-//                </div>
-//
-//                <!-- Left and right controls -->
-//                <a class='left carousel-control' href='#myCarousel' data-slide='prev'>
-//                    <span class='glyphicon glyphicon-chevron-left'></span>
-//                    <span class='sr-only'>Previous</span>
-//                </a>
-//                <a class='right carousel-control' href='#myCarousel' data-slide='next'>
-//                    <span class='glyphicon glyphicon-chevron-right'></span>
-//                    <span class='sr-only'>Next</span>
-//                </a>
-//            </div>
-//        </div>
-//    </div>
-//</div>";
+    $imageSave = 'generatedImages/'.$image_name;
+    //PDO Insert image to database, insert, search term, imageSrc, timestamp
+    $sql = "INSERT INTO imageSearches (image_src, prompt, timestamp) VALUES (:searchTerm, :imageSrc, :timestamp)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(['searchTerm' => $prompt, 'imageSrc' => $imageSave, 'timestamp' => time()]);
+    //Insert into generatedPhotos table: imageSrc, timestamp, search
+    $sql = "INSERT INTO generatedPhotos (image_src, timestamp, prompt) VALUES (:imageSrc, :timestamp, :search)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(['imageSrc' => $imageSave, 'timestamp' => time(), 'search' => $prompt]);
 
 }
 ?>

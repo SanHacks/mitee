@@ -1,6 +1,6 @@
 <?php
-$host = 'localhost';
-$db   = 'gundo';
+$host = '127.0.0.1';
+$db   = 'aiwear';
 $user = 'root';
 $pass = 'root';
 $port = "8889";
@@ -19,5 +19,5 @@ try {
     //Show the connection status
 
 } catch (\PDOException $e) {
-    throw new \PDOException($e->getMessage(), (int)$e->getCode());
+    print_r($e->getMessage());
 }
