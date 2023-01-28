@@ -12,6 +12,10 @@ $stmt->execute();
 
 $photos = $stmt->fetchAll();
 
+$getProducts = $pdo->prepare("SELECT * FROM products");
+$getProducts->execute();
+$products = $getProducts->fetchAll();
+
 
 if (isset($_POST['prompt'])) {
     $prompt = $_POST['prompt'];
@@ -217,14 +221,17 @@ if(isset($_POST['submit'])) {
 <!-- Input form handled with php and javascript  to send the input to the backend , prepare for dynamic image output and lead to check out page -->
 <br>
 <?php
-//display 4 images in a card grid
+//display 4 images in a car
 foreach ($photos as $Products){
     $productImage = $Products['image_src'];
     $productPrompt = $Products['prompt'];
-    echo "<div class='card'>";
+    //character limit for the description
+    $productPrompt = substr($productPrompt, 0, 15);
+    echo "<div class='card'>"  ;
+
     echo "<div class='card-body'>";
     echo "<div class='input-group'>";
-    echo "<img src='$productImage' class='img-responsive' style='width:50%' alt='Image'>";
+    echo "<img src='$productImage' class='img-responsive' style='height:50%' alt='Image'>";
     //description of the product
    echo "<p>$productPrompt</p>";
     echo "<div class='input-group-btn'>";
@@ -240,6 +247,8 @@ foreach ($photos as $Products){
     echo "</div>";
     echo "</div>";
     echo "</div>";
+    echo "</div>";
+
 
 
 }
