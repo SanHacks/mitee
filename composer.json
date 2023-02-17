@@ -1,0 +1,24 @@
+{
+    "name": "gundosifhufhi/mitee",
+    "autoload": {
+        "psr-4": {
+            "Gundosifhufhi\\Mitee\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Gundo Sifhufhi",
+            "email": "sifhufhisg@gmail.com"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "^7.5",
+        "orhanerday/open-ai": "^3.4",
+        "amphp/amp": "^2.6",
+        "php-http/promise": "^1.1",
+        "chillerlan/php-qrcode": "^4.3",
+        "tecnickcom/tc-lib-barcode": "^1.17",
+        "sabre/http": "^7.0",
+        "crunzphp/crunz": "^3.4"
+    }
+}

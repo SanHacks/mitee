@@ -1,20 +1,17 @@
 <?php
 include_once 'vendor/autoload.php';
+
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 
 
 include_once 'connect.php';
 
-$sql = "SELECT * FROM generatedPhotos ORDER BY timestamp DESC LIMIT 3";
+$sql = "SELECT * FROM generatedPhotos ORDER BY timestamp DESC LIMIT 1 ";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 
 $photos = $stmt->fetchAll();
-
-$getProducts = $pdo->prepare("SELECT * FROM products");
-$getProducts->execute();
-$products = $getProducts->fetchAll();
 
 
 if (isset($_POST['prompt'])) {
@@ -52,32 +49,27 @@ if(isset($_POST['submit'])) {
     $prompt = strip_tags($prompt);
     //strip slashes
     $prompt = stripslashes($prompt);
-    //Find "shirt" and replace with "t-shirt" if it exists in the prompt, if no shirt is found, add "t-shirt" to the end of the prompt, if shirt is found, replace with t-shirt use this style /shirt/i
     $prompt = preg_replace('/shirt/i', 't-shirt', $prompt);
-    //Find "shirts" and replace with "t-shirts" if it exists in the prompt, if no shirts is found, add "t-shirts" to the end of the prompt, if shirts is found, replace with t-shirts use this style /shirts/i
     $prompt = preg_replace('/shirts/i', 't-shirt', $prompt);
-    //Find "tee" and replace with "t-shirt" if it exists in the prompt, if no tee is found, add "t-shirt" to the end of the prompt, if tee is found, replace with t-shirt use this style /tee/i
     $prompt = preg_replace('/tee/i', 't-shirt', $prompt);
-    //Find "tees" and replace with "t-shirts" if it exists in the prompt, if no tees is found, add "t-shirts" to the end of the prompt, if tees is found, replace with t-shirts use this style /tees/i
     $prompt = preg_replace('/tees/i', 't-shirt', $prompt);
-    //Find "tshirt" and replace with "t-shirt" if it exists in the prompt, if no tshirt is found, add "t-shirt" to the end of the prompt, if tshirt is found, replace with t-shirt use this style /tshirt/i
     $prompt = preg_replace('/tshirt/i', 't-shirt', $prompt);
-    //Find "tshirts" and replace with "t-shirts" if it exists in the prompt, if no tshirts is found, add "t-shirts" to the end of the prompt, if tshirts is found, replace with t-shirts use this style /tshirts/i
+    $prompt = preg_replace('/t-shirts/i', 't-shirt', $prompt);
+
+    $prompt = preg_replace('/t-shirt/i', 't-shirt', $prompt);
     $prompt = preg_replace('/tshirts/i', 't-shirt', $prompt);
-    //Find "t shirt" and replace with "t-shirt" if it exists in the prompt, if no t shirt is found, add "t-shirt" to the end of the prompt, if t shirt is found, replace with t-shirt use this style /t shirt/i
     $prompt = preg_replace('/t shirt/i', 't-shirt', $prompt);
-    //Find "t shirts" and replace with "t-shirts" if it exists in the prompt, if no t shirts is found, add "t-shirts" to the end of the prompt, if t shirts is found, replace with t-shirts use this style /t shirts/i
     $prompt = preg_replace('/t shirts/i', 't-shirt', $prompt);
-    //if there is no t-shirt in the prompt, add it to the end of the prompt
-    if (strpos($prompt, 'shirt') === false) {
+
+    if (strpos($prompt, 'shirt') || (strpos($prompt, 't-shirt')) === false) {
         $prompt = $prompt . ' t-shirt';
     }
-    $body = '{
-  "prompt": "'.$prompt.'",
-  "n": 1,
-  "size": "512x512"
-
-}';
+            $body = '{
+          "prompt": "'.$prompt.'",
+          "n": 1,
+          "size": "512x512"
+        
+        }';
     $request = new Request('POST', 'https://api.openai.com/v1/images/generations', $headers, $body);
     $res = $client->sendAsync($request)->wait();
 
@@ -122,78 +114,6 @@ if(isset($_POST['submit'])) {
             color: white;
         }
 
-        .card {
-            margin-top: 20px;
-            margin-bottom: 20px;
-            -webkit-box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
-            box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
-            border-radius: 2px;
-            background-color: #fff;
-            transition: all .3s ease-in-out;
-            border: 1px solid #e5e5e5;
-            margin-left: 20px;
-            margin-right: 20px;
-        }
-
-        .card-body {
-            padding: 15px;
-        }
-
-        .input-group {
-            position: relative;
-            display: table;
-            border-collapse: separate;
-        }
-
-        .input-group-btn {
-            position: relative;
-            font-size: 0;
-            white-space: nowrap;
-            vertical-align: middle;
-            display: table-cell;
-        }
-
-        .input-group-btn:last-child>.btn, .input-group-btn:last-child>.btn-group {
-            z-index: 2;
-            margin-left: -1px;
-        }
-
-        .input-group-btn .btn {
-            position: relative;
-            z-index: 2;
-            float: left;
-        }
-
-
-        .btn-default {
-            color: #333;
-            background-color: #fff;
-            border-color: #ccc;
-        }
-
-        .btn-default:hover {
-            color: #333;
-            background-color: #e6e6e6;
-            border-color: #adadad;
-        }
-
-
-        .btn-default:focus, .btn-default.focus {
-            color: #333;
-            background-color: #e6e6e6;
-            border-color: #adadad;
-            outline: 0;
-            -webkit-box-shadow: inset 0 3px 5px rgba(0,0,0,.125), 0 0 0 3px rgba(82,168,236,.5);
-            box-shadow: inset 0 3px 5px rgba(0,0,0,.125), 0 0 0 3px rgba(82,168,236,.5);
-        }
-
-        .btn-default:active, .btn-default.active, .open>.dropdown-toggle.btn-default {
-            color: #333;
-            background-color: #e6e6e6;
-            border-color: #adadad;
-            -webkit-box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
-            box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
-        }
     </style>
 </HEAD>
 
@@ -206,7 +126,7 @@ if(isset($_POST['submit'])) {
 </div>
 
 <!-- Instructions for the user jumbotron -->
-<div class="jumbotron">
+<!--<div class="jumbotron">
     <div class="container text-center">
         <h1>AI TEES</h1>
         <p>Implementation of Dalle-e 2 , To allow customer to create custom design T-shirts Prints.
@@ -216,43 +136,10 @@ if(isset($_POST['submit'])) {
         </p>
     </div>
 
-</div>
+</div>-->
 
 <!-- Input form handled with php and javascript  to send the input to the backend , prepare for dynamic image output and lead to check out page -->
 <br>
-<?php
-//display 4 images in a car
-foreach ($photos as $Products){
-    $productImage = $Products['image_src'];
-    $productPrompt = $Products['prompt'];
-    //character limit for the description
-    $productPrompt = substr($productPrompt, 0, 15);
-    echo "<div class='card'>"  ;
-
-    echo "<div class='card-body'>";
-    echo "<div class='input-group'>";
-    echo "<img src='$productImage' class='img-responsive' style='height:50%' alt='Image'>";
-    //description of the product
-   echo "<p>$productPrompt</p>";
-    echo "<div class='input-group-btn'>";
-    echo "<button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>Action <span class='caret'></span></button>";
-    echo "<ul class='dropdown-menu dropdown-menu-right'>";
-    echo "<li><a href='#'>Add to Cart</a></li>";
-    echo "<li><a href='#'>Add to Wishlist</a></li>";
-    echo "<li><a href='#'>Add to Compare</a></li>";
-    echo "<li role='separator' class='divider'></li>";
-    echo "<li><a href='#'>View Details</a></li>";
-    echo "</ul>";
-    echo "</div>";
-    echo "</div>";
-    echo "</div>";
-    echo "</div>";
-    echo "</div>";
-
-
-
-}
-?>
 <!---
 
 
@@ -317,8 +204,15 @@ Use AI to prompt user for image to put on t shirt
             <?php
               if(!empty( $image['data'][0]['url'])){
                 $photo =  $image['data'][0]['url'];
-                echo "<img class='rounded-lg-3' src='$photo' alt='' width='720'> ";
+                echo "<img class='img-fluid' src='$photo'> ";
+            }else{
+            foreach ($photos as $Products) {
+                $productImage = $Products['image_src'];
+                $productPrompt = $Products['prompt'];
+
+                echo "<img class='img-fluid' src='$productImage' > ";
             }
+              }
             ?>
         </div>
     </div>
@@ -342,58 +236,15 @@ if (isset($photo)){
     $imageSave = imagejpeg($rotate,'generatedImages/'.$image_name,100);
     imagedestroy($source);
     $imageSave = 'generatedImages/'.$image_name;
-    //PDO Insert image to database, insert, search term, imageSrc, timestamp
+    //TODO:PDO Insert image to database, insert, search term, imageSrc, timestamp
     $sql = "INSERT INTO imageSearches (image_src, prompt, timestamp) VALUES (:searchTerm, :imageSrc, :timestamp)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute(['searchTerm' => $prompt, 'imageSrc' => $imageSave, 'timestamp' => time()]);
-    //Insert into generatedPhotos table: imageSrc, timestamp, search
+    //TODO:Insert into generatedPhotos table: imageSrc, timestamp, search
     $sql = "INSERT INTO generatedPhotos (image_src, timestamp, prompt) VALUES (:imageSrc, :timestamp, :search)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute(['imageSrc' => $imageSave, 'timestamp' => time(), 'search' => $prompt]);
 
-    //Insert into Products table: imageSrc, timestamp, search, generate price base on visual complexity of image and size of image and color of image + 10% for shipping and handling and 10% for profit margin and 10% for taxes
-    //write full pricing  algorithm
-    //1. get image size
-    //2. get image color
-    //3. get image complexity
-    //4. get image price
-    //5. get image shipping
-    //6. get image handling
-    //7. get image profit margin
-    //8. get image taxes
-    //9. get image total price
-    //10. insert into products table
-    //11. insert into orders table
-
-    //PHP Image Size
-/*    $imageSize = getimagesize($imageSave);
-    $imageWidth = $imageSize[0];
-    $imageHeight = $imageSize[1];
-    $imageSize = $imageWidth * $imageHeight;
-    //PHP Image Color
-    $imageColor = imagecolorat($imageSave, 0, 0);
-    $imageColor = imagecolorsforindex($imageSave, $imageColor);
-    $imageColor = $imageColor['red'] + $imageColor['green'] + $imageColor['blue'];
-    //PHP Image Complexity
-    $imageComplexity = 0;
-    for ($x = 0; $x < $imageWidth; $x++) {
-        for ($y = 0; $y < $imageHeight; $y++) {
-            $thisColor = imagecolorat($imageSave, $x, $y);
-            $rgbArray = imagecolorsforindex($imageSave, $thisColor);
-            $imageComplexity += $rgbArray['red'] + $rgbArray['green'] + $rgbArray['blue'];
-        }
-    }*/
-/*    $imageComplexity = $imageComplexity / $imageSize;
-    //PHP Image Price
-    $imagePrice = $imageSize * $imageColor * $imageComplexity;
-    //PHP Image Shipping
-    $imageShipping = $imagePrice * 0.1;
-    //PHP Image Handling
-    $imageHandling = $imagePrice * 0.1;
-    //PHP Image Profit Margin
-    $imageProfitMargin = $imagePrice * 0.1;
-    //PHP Image Taxes
-    $imageTaxes = $imagePrice * 0.1;*/
     $description = $prompt;
     //product ID is first 3 letters of prompt + 3 random numbers + 3 random letters
     $productID = substr($prompt, 0, 3);
@@ -424,14 +275,11 @@ if (isset($photo)){
     $stmt->execute(['productID' => $productID, 'skuNumber' => $skuNumber, 'barcodeNumber' => $barcodeNumber, 'qrCodeNumber' => $qrCodeNumber, 'imageSrc' => $imageSave, 'description' => $description, 'price' => $imagePrice, 'shipping' => $imageShipping, 'handling' => $imageHandling, 'profitMargin' => $imageProfitMargin, 'taxes' => $imageTaxes, 'totalPrice' => $imageTotalPrice, 'timestamp' => time(), 'prompt' => $prompt]);
 }
 ?>
-    <!--Card of T-shirts with 4x4 grid-->
-
-
 </div>
 </br>
 </br>
 </br>
-<div class="row">
+<!--<div class="row">
     <div class="col-sm-4">
         <h3>Design</h3>
         <p>Design your own T-shirt with our AI powered T-shirt design tool.</p>
@@ -447,6 +295,6 @@ if (isset($photo)){
         <p>Wear your T-shirt with our AI powered T-shirt printing tool.</p>
         <p>Choose from a variety of designs and colors to create your own unique T-shirt.</p>
     </div>
-</div>
+</div>-->
 </body>
 </HTML>
